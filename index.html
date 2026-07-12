@@ -72,9 +72,10 @@
       <form
         id="declarative-reserve-form"
         class="declarative-form"
+        action="http://localhost:8787/api/reservations"
+        method="post"
         toolname="reserve_seat"
         tooldescription="指定した席を予約する。1参加者につき1席のみ。事前に set_participant_id で参加者IDを設定しておく必要がある。"
-        toolautosubmit
       >
         <label class="declarative-form-label">
           席番号
@@ -83,10 +84,12 @@
             type="text"
             placeholder="A-5"
             autocomplete="off"
+            pattern="[A-J]-([1-9]|10)"
             required
             toolparamdescription="予約する席のID。形式は '<行>-<番号>'。行は A から J、番号は 1 から 10 (例: A-5, B-10)。"
           />
         </label>
+        <input type="hidden" name="source" value="webmcp" />
         <button type="submit" class="primary-button">予約する</button>
       </form>
     </section>
@@ -118,8 +121,6 @@
     <p>Seat Reservation Handson</p>
   </footer>
 
-  <!-- config.js は .gitignore 対象。開発時は config.example.js をコピーして作成する。 -->
-  <script src="./config.js" onerror="console.info('config.js が未設定です。config.example.js を参考にしてください。')"></script>
   <script src="./app.js"></script>
   <!-- WebMCP 統合スクリプト (Antigravity 等の MCP 対応エージェント向け) -->
   <script src="./webmcp.js"></script>

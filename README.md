@@ -40,15 +40,15 @@ await document.modelContext.registerTool({
 
 ### 2. 宣言型 (declarative) — `<form toolname tooldescription>`
 
-`reserve_seat` ツールは、画面上に実在する `<form>` で表現しています。人間はこの
-フォームを普通に使えます。エージェントも同じフォームを `document.modelContext`
-経由で呼び出せます。
+`reserve_seat` ツールは、画面上に実在する標準の `<form>` で表現しています。
+JavaScript の submit ハンドラは使わず、`action` と `method` で API を直接呼びます。
 
 ```html
 <form
+  action="http://localhost:8787/api/reservations"
+  method="post"
   toolname="reserve_seat"
   tooldescription="指定した席を予約する。1参加者につき1席のみ。..."
-  toolautosubmit
 >
   <label>
     席番号
@@ -60,36 +60,22 @@ await document.modelContext.registerTool({
       toolparamdescription="予約する席のID。形式は '<行>-<番号>'。..."
     />
   </label>
+  <input type="hidden" name="source" value="webmcp" />
   <button type="submit">予約する</button>
 </form>
 ```
 
 - 属性の意味は WebMCP 仕様通りです。
   - `toolname` / `tooldescription` (必須) → ツール名/説明
-  - `toolautosubmit` → 拡張機能が自動送信できる
   - `toolparamdescription` → 各フィールドの説明 (JSON Schema の `description`)
   - `required` / `pattern` → JSON Schema の必須/制約
-- 送信ハンドラは `event.agentInvoked` を見て、エージェント経由なら
-  `event.respondWith(Promise<結果>)` で応答し、人間の送信なら通常の UI 更新に
-  フォールバックします。
-
-```js
-form.addEventListener("submit", (event) => {
-  event.preventDefault();
-  const seatId = new FormData(event.target).get("seatId");
-  if (event.agentInvoked && event.respondWith) {
-    event.respondWith(reserveViaForm(seatId, "webmcp").then(r => ({ ok: true, reservation: r })));
-    return;
-  }
-  reserveViaForm(seatId, "web").then(...);
-});
-```
+- `action` はローカル開発用です。デプロイ時は API の URL に変更してください。
 
 ## `without-webmcp/` からの差分
 
 3 か所だけです。
 
-1. `webmcp.js` を新規追加 (`document.modelContext.registerTool` × 5 + `<form>` submit hook)
+1. `webmcp.js` を新規追加 (`document.modelContext.registerTool` × 5)
 2. `index.html` に以下を追加:
    - `4. 席番号を指定して予約` セクション (宣言型 `<form toolname="reserve_seat">`)
    - `<script src="./webmcp.js"></script>`
@@ -104,9 +90,11 @@ form.addEventListener("submit", (event) => {
 `without-webmcp/` と同じ手順です。
 
 ```bash
-cp config.example.js config.js  # apiBaseUrl を書き換える
 python3 -m http.server 8000
 ```
+
+API の URL を変更する場合は、`app.js` の `DEFAULT_CONFIG.apiBaseUrl` と
+`index.html` の予約フォームの `action` を変更してください。
 
 Chrome (Chrome for Testing 推奨) に `webmcp-bridge-extension` をインストールした
 状態でこのページを開くと、右上に「WebMCPをインストール」ボタンが現れます。

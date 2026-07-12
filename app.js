@@ -12,7 +12,7 @@ const DEFAULT_CONFIG = {
   showReservedBy: false,
 };
 
-const config = Object.assign({}, DEFAULT_CONFIG, window.APP_CONFIG || {});
+const config = DEFAULT_CONFIG;
 
 const state = {
   seats: [],
