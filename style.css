@@ -36,6 +36,73 @@ button {
   font: inherit;
 }
 
+.hint {
+  margin: 4px 0 12px;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+.seat-map {
+  display: grid;
+  gap: 8px;
+  margin: 16px 0 20px;
+  padding-bottom: 4px;
+  overflow-x: auto;
+}
+
+.seat-map-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  min-width: max-content;
+}
+
+.seat-map-row-label {
+  width: 24px;
+  color: #555;
+  font-weight: 700;
+}
+
+.seat-chip {
+  width: 46px;
+  min-width: 46px;
+  height: 36px;
+  border: 1px solid #c8d0d8;
+  border-radius: 6px;
+  background: white;
+  color: #1f2937;
+  font-size: 0.8rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.seat-chip.is-available {
+  border-color: #84cc16;
+  background: #f7fee7;
+}
+
+.seat-chip.is-reserved {
+  border-color: #fca5a5;
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.seat-chip.is-disabled {
+  border-color: #d1d5db;
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.seat-chip:disabled {
+  cursor: not-allowed;
+  opacity: 0.78;
+}
+
+.seat-chip.is-selected {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px #bfdbfe;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;

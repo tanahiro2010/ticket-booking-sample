@@ -24,7 +24,7 @@
               id="participant-id"
               name="participantId"
               required
-              pattern="[A-Za-z0-9_-]{1,64}"
+              pattern="[A-Za-z0-9_\-]{1,64}"
               toolparamdescription="予約する参加者のID。"
             />
           </label>
@@ -52,6 +52,8 @@
       <section>
         <h2>席の状況</h2>
         <p id="summary">読み込み中...</p>
+        <p class="hint">空席をクリックすると、予約フォームの席番号に入力されます。</p>
+        <div id="seat-map" class="seat-map" aria-label="座席表"></div>
         <table>
           <thead><tr><th>席</th><th>状態</th></tr></thead>
           <tbody id="seat-list"></tbody>

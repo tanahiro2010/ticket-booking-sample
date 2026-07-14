@@ -6,6 +6,77 @@ function participantId() {
   return document.querySelector("#participant-id").value.trim();
 }
 
+function seatIdInput() {
+  return document.querySelector('input[name="seatId"]');
+}
+
+function selectSeat(seatId) {
+  const input = seatIdInput();
+  input.value = seatId;
+  input.dispatchEvent(new Event("input", { bubbles: true }));
+  updateSelectedSeat();
+}
+
+function updateSelectedSeat() {
+  const selectedSeatId = seatIdInput().value.trim();
+  document.querySelectorAll(".seat-chip").forEach((button) => {
+    button.classList.toggle("is-selected", button.dataset.seatId === selectedSeatId);
+  });
+}
+
+function statusLabel(status) {
+  return {
+    available: "空席",
+    reserved: "予約済",
+    disabled: "使用禁止",
+  }[status] || status;
+}
+
+function renderSeatMap(seats) {
+  const seatMap = document.querySelector("#seat-map");
+  const rows = new Map();
+
+  for (const seat of seats) {
+    if (!rows.has(seat.row)) {
+      rows.set(seat.row, []);
+    }
+    rows.get(seat.row).push(seat);
+  }
+
+  seatMap.innerHTML = "";
+
+  for (const rowName of [...rows.keys()].sort()) {
+    const row = document.createElement("div");
+    row.className = "seat-map-row";
+
+    const label = document.createElement("span");
+    label.className = "seat-map-row-label";
+    label.textContent = rowName;
+    row.append(label);
+
+    const rowSeats = rows.get(rowName).sort((a, b) => a.number - b.number);
+    for (const seat of rowSeats) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = `seat-chip is-${seat.status}`;
+      button.dataset.seatId = seat.id;
+      button.textContent = seat.id;
+      button.disabled = seat.status !== "available";
+      button.setAttribute("aria-label", `${seat.id}: ${statusLabel(seat.status)}`);
+
+      if (seat.status === "available") {
+        button.addEventListener("click", () => selectSeat(seat.id));
+      }
+
+      row.append(button);
+    }
+
+    seatMap.append(row);
+  }
+
+  updateSelectedSeat();
+}
+
 async function apiFetch(path, options = {}) {
   const headers = { Accept: "application/json", ...options.headers };
 
@@ -49,6 +120,7 @@ async function render() {
     document.querySelector("#summary").textContent =
       `合計 ${data.summary.total} / 空席 ${data.summary.available} / ` +
       `予約済 ${data.summary.reserved} / 使用禁止 ${data.summary.disabled}`;
+    renderSeatMap(data.seats);
     document.querySelector("#seat-list").innerHTML = data.seats
       .map((seat) => `<tr><td>${seat.id}</td><td>${seat.status}</td></tr>`)
       .join("");
@@ -80,6 +152,7 @@ async function renderMyReservation() {
 }
 
 document.querySelector("#participant-id").addEventListener("change", renderMyReservation);
+seatIdInput().addEventListener("input", updateSelectedSeat);
 
 document.querySelector("#cancel-button").addEventListener("click", async () => {
   try {
